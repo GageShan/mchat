@@ -14,4 +14,36 @@
         insert into users(id, username, password, face_image, face_image_big, nickname, qrcode)
         values(#{id},#{username},#{password},#{faceImage},#{faceImageBig},#{nickname},#{qrcode})
     </insert>
+
+    <select id="selectUserByUserId" resultType="com.gageshan.mchat.model.User">
+        select * from users
+        where id = #{userId}
+    </select>
+
+    <update id="updateUserInfo">
+        update users set
+        <if test="nickname != null">
+            nickname = #{nickname},
+        </if>
+        <if test="username != null">
+            username = #{username},
+        </if>
+        <if test="password != null">
+            password = #{password},
+        </if>
+        <if test="faceImage != null">
+            faceImage = #{faceImage},
+        </if>
+        <if test="faceImageBig != null">
+            faceImageBig = #{faceImageBig},
+        </if>
+        <if test="qrcode != null">
+            qrcode = #{qrcode},
+        </if>
+        <if test="cid != null">
+            cid = #{cid},
+        </if>
+        id = #{id}
+        where id = #{id}
+    </update>
 </mapper>

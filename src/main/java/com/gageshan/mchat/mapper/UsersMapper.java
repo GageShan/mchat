@@ -11,4 +11,8 @@ public interface UsersMapper{
     User selectUserByUsernameAndPassword(String username, String password);
 
     void insert(User user);
+
+    User selectUserByUserId(String userId);
+
+    void updateUserInfo(User user);
 }
