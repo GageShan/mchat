@@ -26,15 +26,19 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame textWebSocketFrame) throws Exception {
         String msg = textWebSocketFrame.text();
-        System.out.println("msg: " + msg);
+//        System.out.println("msg: " + msg);
+
         DataContent dataContent = JsonUtils.jsonToPojo(msg,DataContent.class);
+        System.out.println(dataContent);
         Channel currentChannel = channelHandlerContext.channel();
+
         Integer action = dataContent.getAction();
 
         if(action == MsgActionEnum.CONNECT.TYPE) {
             String senderId = dataContent.getChatMsg().getSenderId();
             UserChannelRel.put(senderId,currentChannel);
         } else if(action == MsgActionEnum.CHAT.TYPE) {
+
             ChatMsg chatMsg = dataContent.getChatMsg();
             String msgText = chatMsg.getMsg();
             String receiverId = chatMsg.getReceiverId();
@@ -42,6 +46,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             UserService userService = (UserService)SpringUtil.getBean("userService");
             String msgId = userService.saveMsg(chatMsg);
             chatMsg.setMsgId(msgId);
+
+            DataContent dataContentMsg = new DataContent();
+            dataContentMsg.setChatMsg(chatMsg);
 
             Channel receiverChannel = UserChannelRel.get(receiverId);
 
@@ -51,7 +58,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 Channel findChannel = users.find(receiverChannel.id());
                 if(findChannel != null) {
                     receiverChannel.writeAndFlush(new TextWebSocketFrame(
-                            JsonUtils.objectToJson(chatMsg)
+                            JsonUtils.objectToJson(dataContentMsg)
                     ));
                 } else {
 
@@ -59,7 +66,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             }
         } else if(action == MsgActionEnum.SIGNED.TYPE) {
             UserService userService = (UserService)SpringUtil.getBean("userService");
-            String extend = dataContent.getExtend();
+            String extend = dataContent.getExtand();
             String[] split = extend.split(",");
             List<String> msIdsList = new ArrayList<>();
 

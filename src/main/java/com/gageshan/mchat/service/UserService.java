@@ -1,5 +1,6 @@
 package com.gageshan.mchat.service;
 
+import com.gageshan.mchat.enums.MsgActionEnum;
 import com.gageshan.mchat.enums.MsgSignFlagEnum;
 import com.gageshan.mchat.enums.SearchFriendsStatusEnum;
 import com.gageshan.mchat.mapper.*;
@@ -9,6 +10,11 @@ import com.gageshan.mchat.model.User;
 import com.gageshan.mchat.model.vo.FriendRequestVO;
 import com.gageshan.mchat.model.vo.MyFriendsVO;
 import com.gageshan.mchat.netty.ChatMsg;
+import com.gageshan.mchat.netty.DataContent;
+import com.gageshan.mchat.netty.UserChannelRel;
+import com.gageshan.mchat.utils.JsonUtils;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -114,6 +120,16 @@ public class UserService {
         saveFriend(sendUserId,acceptUserId);
         saveFriend(acceptUserId,sendUserId);
         deleteFriendRequest(sendUserId,acceptUserId);
+
+        //使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
+
+        Channel channel = UserChannelRel.get(sendUserId);
+        if(channel != null) {
+            DataContent dataContent = new DataContent();
+            dataContent.setAction(MsgActionEnum.PULL_FRIEND.TYPE);
+            channel.writeAndFlush(
+                    new TextWebSocketFrame(JsonUtils.objectToJson(dataContent)));
+        }
     }
 
     public void saveFriend(String sendUserId,String acceptUserId) {
@@ -143,5 +159,10 @@ public class UserService {
 
     public void updateMsgSigned(List<String> msgIdList) {
         usersMapperCustom.batchUpdateMsgSignFlag(msgIdList);
+    }
+
+    public List<com.gageshan.mchat.model.ChatMsg> getUnReadMsgList(String acceptUserId) {
+        List<com.gageshan.mchat.model.ChatMsg> list = chatMsgMapper.selectMsgByUserId(0,acceptUserId);
+        return list;
     }
 }

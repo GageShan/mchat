@@ -2,6 +2,7 @@ package com.gageshan.mchat.controller;
 
 import com.gageshan.mchat.enums.OperatorFriendRequestTypeEnum;
 import com.gageshan.mchat.enums.SearchFriendsStatusEnum;
+import com.gageshan.mchat.model.ChatMsg;
 import com.gageshan.mchat.model.User;
 import com.gageshan.mchat.model.bo.UserBo;
 import com.gageshan.mchat.model.vo.MyFriendsVO;
@@ -139,5 +140,16 @@ public class UserController {
         List<MyFriendsVO> myFriends = userService.queryMyFriends(userId);
 //        System.out.println(myFriends.toString());
         return IMoocJSONResult.ok(myFriends);
+    }
+
+    @PostMapping("/getUnReadMsgList")
+    @ResponseBody
+    public IMoocJSONResult getUnReadMsgList(String acceptUserId) {
+        if(StringUtils.isBlank(acceptUserId)) {
+            return IMoocJSONResult.errorMsg("");
+        }
+        List<ChatMsg> unReadMsgList = userService.getUnReadMsgList(acceptUserId);
+//        System.out.println(myFriends.toString());
+        return IMoocJSONResult.ok(unReadMsgList);
     }
 }

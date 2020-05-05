@@ -11,5 +11,5 @@ public class DataContent implements Serializable {
     private static final long serialVersionUID = 8021381444738260454L;
     private Integer action;
     private ChatMsg chatMsg;
-    private String extend;
+    private String extand;
 }

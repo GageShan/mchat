@@ -23,12 +23,14 @@ public class WSServerInitialzer extends ChannelInitializer<SocketChannel> {
         //对写大数据流的支持
         pipeline.addLast(new ChunkedWriteHandler());
 
+
         //对httpmessage进行聚合
         pipeline.addLast(new HttpObjectAggregator(1024 * 64));
 
         //增加心跳机制
-        pipeline.addLast(new IdleStateHandler(8,10,12));
+        pipeline.addLast(new IdleStateHandler(80,100,120));
 
+        pipeline.addLast(new HeartBeatHandler());
 
         //支持httpwebsocket
         pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
